@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				font-display: column;
+			}
+
+			#gameboard {
+				width: 300px;
+				height: 300px;
+				background-color: #000;
+				display: flex;
+				flex-wrap: wrap;
+				border: 2px solid #000;
+			}
+
+			.square {
+				width: 100px;
+				height: 100px;
+				background-color: #fff;
+				border: 2px solid #000;
+				box-sizing: border-box;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.circle {
+				height: 90px;
+				width: 90px;
+				border-radius: 50%;
+				border: 16px solid blue;
+				box-sizing: border-box;
+			}
+
+			.cross {
+				height: 90px;
+				width: 90px;
+				position: relative;
+				transform: rotate(45deg);
+			}
+
+			.cross:before,
+			.cross:after {
+				content: '';
+				position: absolute;
+				background-color: #ff0000;
+			}
+
+			.cross:before {
+				left: 50%;
+				width: 30%;
+				margin-left: -15%;
+				height: 100%;
+			}
+
+			.cross::after {
+				top: 50%;
+				width: 100%;
+				margin-top: -15%;
+				height: 30%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="gameboard"></div>
+
+		<p id="info"></p>
+
+		<script>
+			const id = document.getElementById('gameboard');
+			const p = document.getElementById('info');
+			const startCells = ['', '', '', '', '', '', '', '', ''];
+			let go = 'cross';
+			p.textContent = `${go} goes first`;
+
+			function createBoard() {
+				startCells.forEach((el, index) => {
+					let item = document.createElement('div');
+					item.classList.add('square');
+					item.id = index;
+					item.addEventListener('click', addGo);
+					id.append(item);
+				});
+			}
+
+			createBoard();
+
+			function addGo(e) {
+				let item = document.createElement('div');
+				item.classList.add(go);
+				e.target.append(item);
+				go = go === 'cross' ? 'circle' : 'cross';
+				p.textContent = `it is now ${go}'s go`;
+				e.target.removeEventListener('click', addGo);
+				checkScore()
+			}
+
+			function checkScore() {
+				const item = document.querySelector('.square');
+
+				const winningCombos = [
+					[0, 1, 2], [3, 4, 5], [6, 7, 8],
+					[0, 3, 6], [1, 4, 7], [2, 5, 8],
+					[0, 4, 8], [2, 4, 6]
+				]
+
+				winningCombos.forEach((el) => {
+					const circleWins = el.every(cell => item[cell].firstChild?.classList.contains('circle'))
+					if (circleWins) {
+						p.textContent = 'Circle Wins'
+						item.forEach(el => el.replaceWith(el.cloneNode(true)))
+						return;
+					}
+				})
+
+				winningCombos.forEach((el) => {
+					const crossWins = el.every(cell => item[cell].firstChild?.classList.contains('cross'))
+					if (crossWins) {
+						p.textContent = 'Cross Wins'
+						item.forEach(el => el.replaceWith(el.cloneNode(true)))
+						return;
+					}
+				})
+			}
+		</script>
+	</body>
+</html>
